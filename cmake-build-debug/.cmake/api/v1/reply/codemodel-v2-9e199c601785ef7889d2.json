@@ -49,8 +49,8 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/cmake-build-debug",
-		"source" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A"
+		"build" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone/cmake-build-debug",
+		"source" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone"
 	},
 	"version" : 
 	{

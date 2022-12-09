@@ -55,7 +55,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "c:/Users/akaas/Documents/9th_Semester/ENEE408A/cmake-build-debug"
+			"value" : "c:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone/cmake-build-debug"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -479,7 +479,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A"
+			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone"
 		},
 		{
 			"name" : "CMAKE_INSTALL_PREFIX",
@@ -1095,7 +1095,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/cmake-build-debug"
+			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone/cmake-build-debug"
 		},
 		{
 			"name" : "ENEE408A_IS_TOP_LEVEL",
@@ -1119,7 +1119,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A"
+			"value" : "C:/Users/akaas/Documents/9th_Semester/ENEE408A/ENEE408ACapstone"
 		}
 	],
 	"kind" : "cache",

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <math.h>
 
+// Required #defines to use stb libraries
 #define STBIR_INCLUDE_STB_IMAGE_RESIZE_H
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
@@ -10,62 +11,77 @@
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
 
+// LED structure
 struct LED {
     uint8_t green;
     uint8_t red;
     uint8_t blue;
 } LED_t;
 
+// #defines for constants of the design and wheel
 #define LEDS_PER_STRIP (40)
 #define SLICES_ON_WHEEL (72)
-#define WHEEL_DIAMETER (60)
-#define HUB_DIAMETER (6.5)
+//#define WHEEL_DIAMETER (60)
+//#define HUB_DIAMETER (6.5)
+#define WHEEL_DIAMETER (5)
+#define HUB_DIAMETER (1)
+
+// Testing #defines
 #define WIDTH (225)
 #define HEIGHT (225)
 
-// 40 LEDs per strip length, 72 slices for every strip
-struct LED returnValue[SLICES_ON_WHEEL][LEDS_PER_STRIP];
-//struct LED image[HEIGHT][WIDTH];
+// This function gets and prints the r,g,b pixel values for the specified pixel defined at y = height_loc, x = width_loc
+// for the rgb_image passed in, in addition to passing in the total width of the image
+struct LED pixel_index_lookup(int height_loc, int width_loc, uint8_t * rgb_image, int image_width) {
+    uint8_t red_pixel, green_pixel, blue_pixel;
+
+    red_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 0); // red
+    green_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 1); // green
+    blue_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 2); // blue
+
+    printf("{%d,%d,%d},", red_pixel, green_pixel, blue_pixel);
+}
+
 
 int main() {
     int width = 0, height = 0, channels = 0;
 
+    // Load in the image
     uint8_t *rgb_image = stbi_load("red_circle.png", &width, &height, &channels, 3);
-    struct LED * image[HEIGHT];
-    for (int i = 0; i < HEIGHT; i++) {
-        image[i] = malloc(sizeof(struct LED) * WIDTH);
-        memset(image[i], 0, sizeof(struct LED) * WIDTH);
-    }
-//    memset(image, 0, sizeof(struct LED[HEIGHT][WIDTH]));
-    uint8_t red_pixel, green_pixel, blue_pixel;
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            red_pixel = *(rgb_image + (i * (3 * width)) + (3 * j) + 0); // red
-            green_pixel = *(rgb_image + (i * (3 * width)) + (3 * j) + 1); // green
-            blue_pixel = *(rgb_image + (i * (3 * width)) + (3 * j) + 2); // blue
 
-//            printf("Row: %d Column: %d red pixel: %d blue pixel: %d green pixel %d\n", i, j, red_pixel, blue_pixel, green_pixel);
-            image[i][j].green = green_pixel;
-            image[i][j].red = red_pixel;
-            image[i][j].blue = blue_pixel;
+
+
+    int x_center = width - (width/2);
+    int y_center = height - (height/2);
+
+    for (int currentSlice = 0; currentSlice < SLICES_ON_WHEEL; currentSlice++) {
+        // Calculate the angle for the LED pixel
+        int angle = (360 * (currentSlice / SLICES_ON_WHEEL) + 90) % 360;
+        for (int currentLED = 0; currentLED < LEDS_PER_STRIP; currentLED++) {
+            // Step 1. Find the location of the pixel
+
+            // Calculate the radius for the LED pixel
+            int hubPixelOffset = (HUB_DIAMETER / WHEEL_DIAMETER) * (height/2); // Offset from center of wheel to edge of hub in pixels
+            int pixelsBtwHubAndEdge = (height / 2) - hubPixelOffset; // # of pixels between edge of hub and edge of wheel
+            int radius = hubPixelOffset + (currentLED / (LEDS_PER_STRIP - 1)) * pixelsBtwHubAndEdge; // Number of sections between LEDs is 1 less than LEDS_PER_STRIP
+
+            // Given the radius and angle, figure out the x coordinate relative to the center
+            int x = radius * (cos(angle));
+            // Given the radius and angle, figure out the y coordinate relative to the center
+            int y = radius * (sin(angle));
+            // Convert the calculated x and y coordinates in terms of the top left of the image
+
+
+
+            // Step 2. Grab and print the pixel
+            pixel_index_lookup(0, 0, rgb_image, width);
         }
     }
 
-    // int width = 800;
-    // int height = 800;
-
-    // uint8_t * rgb_image;
-    // rgb_image = malloc(width * height * CHANNEL_NUM);
-
-    // Write your code to populate rgb_image here
 
     stbi_write_png("image.png", width, height, CHANNEL_NUM, rgb_image, width*CHANNEL_NUM);
-
     stbi_image_free(rgb_image);
-    for (int i = 0; i < HEIGHT; i++) {
-        free(image[i]);
-//        image[i] = malloc(sizeof(struct LED) * WIDTH);
-    }
+
     return 0;
 }
