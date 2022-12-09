@@ -1,0 +1,5 @@
+main
+output.txt
+*.o
+c_test*
+test.cpp
