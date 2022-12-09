@@ -20,11 +20,12 @@ struct LED {
 
 // #defines for constants of the design and wheel
 #define LEDS_PER_STRIP (40)
-#define SLICES_ON_WHEEL (72)
-//#define WHEEL_DIAMETER (60)
-//#define HUB_DIAMETER (6.5)
-#define WHEEL_DIAMETER (5)
-#define HUB_DIAMETER (1)
+#define SLICES_ON_WHEEL (10)
+#define WHEEL_DIAMETER (60)
+#define HUB_DIAMETER (6.5)
+//#define WHEEL_DIAMETER (5.0)
+//#define HUB_DIAMETER (1.0)
+#define PI 3.1415926535
 
 // Testing #defines
 #define WIDTH (225)
@@ -49,14 +50,15 @@ int main() {
     // Load in the image
     uint8_t *rgb_image = stbi_load("red_circle.png", &width, &height, &channels, 3);
 
-
-
+//    width = 500;
+//    height = 500;
 
     int x_center = width - (width/2);
     int y_center = height - (height/2);
 
     for (int currentSlice = 0; currentSlice < SLICES_ON_WHEEL; currentSlice++) {
         // Calculate the angle for the LED pixel
+        printf("\n");
         int angle = (360 * (currentSlice / SLICES_ON_WHEEL) + 90) % 360;
         for (int currentLED = 0; currentLED < LEDS_PER_STRIP; currentLED++) {
             // Step 1. Find the location of the pixel
@@ -67,15 +69,16 @@ int main() {
             int radius = hubPixelOffset + (currentLED / (LEDS_PER_STRIP - 1)) * pixelsBtwHubAndEdge; // Number of sections between LEDs is 1 less than LEDS_PER_STRIP
 
             // Given the radius and angle, figure out the x coordinate relative to the center
-            int x = radius * (cos(angle));
+            int x = radius * (cos(angle * (PI/180)));
             // Given the radius and angle, figure out the y coordinate relative to the center
-            int y = radius * (sin(angle));
+            int y = radius * (sin(angle* (PI/180)));
+
             // Convert the calculated x and y coordinates in terms of the top left of the image
-
-
+            int convertedX = x + WIDTH/2;
+            int convertedY = y + HEIGHT/2;
 
             // Step 2. Grab and print the pixel
-            pixel_index_lookup(0, 0, rgb_image, width);
+            pixel_index_lookup(convertedX, convertedY, rgb_image, width);
         }
     }
 
