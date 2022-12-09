@@ -10,7 +10,7 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 #include "stb_image_resize.h"
-
+ 
 // LED structure
 struct LED {
     uint8_t green;
