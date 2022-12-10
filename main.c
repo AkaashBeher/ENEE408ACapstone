@@ -21,8 +21,8 @@ struct LED {
 
 // #defines for constants of the design and wheel
 #define LEDS_PER_STRIP (40)
-#define SLICES_ON_WHEEL (10)
-#define WHEEL_DIAMETER (60)
+#define SLICES_ON_WHEEL (18)
+#define WHEEL_DIAMETER (60.0)
 #define HUB_DIAMETER (6.5)
 //#define WHEEL_DIAMETER (5.0)
 //#define HUB_DIAMETER (1.0)
@@ -45,13 +45,13 @@ int main() {
     int width = 0, height = 0, channels = 0;
 
     // Load in the image
-    uint8_t *rgb_image = stbi_load("hi.png", &width, &height, &channels, 3);
+    uint8_t *rgb_image = stbi_load("yin_yang.png", &width, &height, &channels, 3);
     
-    // Force a square crop
+    int smallest;
     if (width < height) {
-        height = width;
+        smallest = width;
     } else {
-        width = height;
+        smallest = height;
     }
     
     FILE *out_file = fopen("output.txt", "w");
@@ -63,26 +63,28 @@ int main() {
     int y_center = height - (height/2);
 
 
-    int hubPixelOffset = (HUB_DIAMETER / WHEEL_DIAMETER) * (height/2); // Offset from center of wheel to edge of hub in pixels
-    int pixelsBtwHubAndEdge = (height / 2) - hubPixelOffset; // # of pixels between edge of hub and edge of wheel
+    int hubPixelOffset = (HUB_DIAMETER / WHEEL_DIAMETER) * (smallest/2); // Offset from center of wheel to edge of hub in pixels
+    int pixelsBtwHubAndEdge = (smallest / 2) - hubPixelOffset; // # of pixels between edge of hub and edge of wheel
 
     for (int currentSlice = 0; currentSlice < SLICES_ON_WHEEL; currentSlice++) {
         // Calculate the angle for the LED pixel
         fprintf(out_file, "\n");
         int angle = (int) ((360.0 * (((double) currentSlice) / SLICES_ON_WHEEL) + 90.0)) % 360;
-        // printf("angle %d\n", angle);
+        printf("angle %d\n", angle);
         for (int currentLED = 0; currentLED < LEDS_PER_STRIP; currentLED++) {
             // Step 1. Find the location of the pixel
 
             // Calculate the radius for the LED pixel
             int radius = hubPixelOffset + ((currentLED / (LEDS_PER_STRIP - 1.0)) * pixelsBtwHubAndEdge); // Number of sections between LEDs is 1 less than LEDS_PER_STRIP
-            // if (currentSlice == 0) printf("radius %d\n", radius);
+            if (currentSlice == 1) printf("radius %d\n", radius);
 
             // Given the radius and angle, figure out the x coordinate relative to the center
             int x = radius * (cos(angle * (PI/180)));
+            if (currentSlice == 1) printf("x %d\n", x);
 
             // Given the radius and angle, figure out the y coordinate relative to the center
             int y = radius * (sin(angle* (PI/180)));
+            if (currentSlice == 1) printf("y %d\n", y);
 
             // Convert the calculated x and y coordinates in terms of the top left of the image
             int convertedX = x + width/2;
