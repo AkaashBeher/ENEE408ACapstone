@@ -26,26 +26,61 @@ struct LED {
 #define HUB_DIAMETER (6.5)
 //#define WHEEL_DIAMETER (5.0)
 //#define HUB_DIAMETER (1.0)
-#define PI 3.1415926535
+#define PI (3.1415926535)
+#define DIVISIONS (2)
+
+void filter_color(uint8_t * color, int numDivisions) {
+    uint8_t localColor = 0;
+    int division = 255 * (double) (1.0/numDivisions);
+
+    for (int i = 0; i < numDivisions + 1; i++) {
+        localColor = i * division;
+        if (*color - localColor < division) {
+            break;
+        }
+    }
+
+    *color = localColor;
+}
+
+void shitty_filter_color(uint8_t * color, int numDivisions) {
+
+    if (*color >= 0 && *color <= 85) {
+        *color = 0;
+    } else if (*color >= 86 && *color <= 171) {
+        *color = 127;
+    } else if (*color >= 172 && *color <= 255) {
+        *color = 255;
+    }
+
+    return;
+
+//    *color = localColor;
+}
 
 // This function gets and prints the r,g,b pixel values for the specified pixel defined at y = height_loc, x = width_loc
 // for the rgb_image passed in, in addition to passing in the total width of the image
 void pixel_index_lookup(FILE *out_file, int height_loc, int width_loc, uint8_t * rgb_image, int image_width) {
-    uint8_t red_pixel, green_pixel, blue_pixel;
 
-    red_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 0); // red
-    green_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 1); // green
-    blue_pixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 2); // blue
+    uint8_t redPixel = 0, bluePixel = 0, greenPixel = 0;
+    uint8_t * redPixelPointer = &redPixel, * greenPixelPointer = &greenPixel, * bluePixelPointer = &bluePixel;
 
-    fprintf(out_file, "{%d,%d,%d},", red_pixel, green_pixel, blue_pixel);
+    redPixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 0); // red
+    greenPixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 1); // green
+    bluePixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 2); // blue
+
+    shitty_filter_color(redPixelPointer, DIVISIONS);
+    shitty_filter_color(greenPixelPointer, DIVISIONS);
+    shitty_filter_color(bluePixelPointer, DIVISIONS);
+
+    fprintf(out_file, "{%d,%d,%d},", redPixel, greenPixel, bluePixel);
 }
-
 
 int main() {
     int width = 0, height = 0, channels = 0;
 
     // Load in the image
-    uint8_t *rgb_image = stbi_load("yin_yang.png", &width, &height, &channels, 3);
+    uint8_t *rgb_image = stbi_load("pepsi_new.png", &width, &height, &channels, 3);
     
     int smallest;
     if (width < height) {
@@ -70,7 +105,7 @@ int main() {
         // Calculate the angle for the LED pixel
         fprintf(out_file, "\n");
         int angle = (int) ((360.0 * (((double) currentSlice) / SLICES_ON_WHEEL) + 90.0)) % 360;
-        printf("angle %d\n", angle);
+//        printf("angle %d\n", angle);
         for (int currentLED = 0; currentLED < LEDS_PER_STRIP; currentLED++) {
             // Step 1. Find the location of the pixel
 
