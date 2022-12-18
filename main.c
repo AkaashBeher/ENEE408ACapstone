@@ -21,42 +21,47 @@ struct LED {
 
 // #defines for constants of the design and wheel
 #define LEDS_PER_STRIP (40)
-#define SLICES_ON_WHEEL (18)
+#define SLICES_ON_WHEEL (36)
 #define WHEEL_DIAMETER (60.0)
 #define HUB_DIAMETER (6.5)
 //#define WHEEL_DIAMETER (5.0)
 //#define HUB_DIAMETER (1.0)
 #define PI (3.1415926535)
-#define DIVISIONS (2)
+#define DIVISIONS (3)
+
+#define COLOR_SCALE (1.0/4.0)
 
 void filter_color(uint8_t * color, int numDivisions) {
-    uint8_t localColor = 0;
-    int division = 255 * (double) (1.0/numDivisions);
 
+    // printf("color: %d\n", *color);
     for (int i = 0; i < numDivisions + 1; i++) {
-        localColor = i * division;
-        if (*color - localColor < division) {
-            break;
+        int division = 255 * i / numDivisions;
+        // printf("div %d\n", division);
+        if (*color < division) {
+            *color = 255 * (i-1) / numDivisions*COLOR_SCALE;
+            // printf("returning %d\n", *color);
+            return;
         }
     }
-
-    *color = localColor;
-}
-
-void shitty_filter_color(uint8_t * color, int numDivisions) {
-
-    if (*color >= 0 && *color <= 85) {
-        *color = 0;
-    } else if (*color >= 86 && *color <= 171) {
-        *color = 127;
-    } else if (*color >= 172 && *color <= 255) {
-        *color = 255;
-    }
-
+    *color = 255*COLOR_SCALE;
     return;
-
-//    *color = localColor;
 }
+
+// void shitty_filter_color(uint8_t * color, int numDivisions, double factor) {
+
+//     if (*color >= 0 && *color <= 85) {
+//         *color = 0;
+//     } else if (*color >= 86 && *color <= 171) {
+//         *color = 127;
+//     } else if (*color >= 172 && *color <= 255) {
+//         *color = 255;
+//     }
+
+//     *color = (int) (((double)*color) * factor);
+//     return;
+
+// //    *color = localColor;
+// }
 
 // This function gets and prints the r,g,b pixel values for the specified pixel defined at y = height_loc, x = width_loc
 // for the rgb_image passed in, in addition to passing in the total width of the image
@@ -69,9 +74,9 @@ void pixel_index_lookup(FILE *out_file, int height_loc, int width_loc, uint8_t *
     greenPixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 1); // green
     bluePixel = *(rgb_image + (height_loc * (3 * image_width)) + (3 * width_loc) + 2); // blue
 
-    shitty_filter_color(redPixelPointer, DIVISIONS);
-    shitty_filter_color(greenPixelPointer, DIVISIONS);
-    shitty_filter_color(bluePixelPointer, DIVISIONS);
+    filter_color(redPixelPointer, DIVISIONS);
+    filter_color(greenPixelPointer, DIVISIONS);
+    filter_color(bluePixelPointer, DIVISIONS);
 
     fprintf(out_file, "{%d,%d,%d},", redPixel, greenPixel, bluePixel);
 }
@@ -94,8 +99,8 @@ int main() {
     fprintf(out_file, "width %d\n", width);
     fprintf(out_file, "height %d\n", height);
 
-    int x_center = width - (width/2);
-    int y_center = height - (height/2);
+    // int x_center = width - (width/2);
+    // int y_center = height - (height/2);
 
 
     int hubPixelOffset = (HUB_DIAMETER / WHEEL_DIAMETER) * (smallest/2); // Offset from center of wheel to edge of hub in pixels
